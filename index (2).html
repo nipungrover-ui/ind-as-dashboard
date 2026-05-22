@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ind AS Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg1:#ffffff;--bg2:#f7f7f5;--bg3:#eceae2;
+  --t1:#1a1a18;--t2:#6b6b67;
+  --bl1:rgba(0,0,0,.08);--bl2:rgba(0,0,0,.14);--bl3:rgba(0,0,0,.22);
+  --b50:#E6F1FB;--b100:#B5D4F4;--b600:#185FA5;--b700:#0C447C;--b800:#042C53;
+  --g50:#EAF3DE;--g100:#C0DD97;--g600:#3B6D11;--g700:#27500A;
+  --r:8px;--rl:12px;--f:'Segoe UI',system-ui,-apple-system,sans-serif
+}
+body{font-family:var(--f);background:var(--bg3);color:var(--t1);min-height:100vh;padding:1.5rem;position:relative}
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Ctext x='10' y='50' font-size='28' font-family='Georgia,serif' fill='%23185FA5' opacity='0.045' transform='rotate(-30 80 80)'%3E%E2%82%B9%3C/text%3E%3Ctext x='70' y='110' font-size='18' font-family='Georgia,serif' fill='%23185FA5' opacity='0.035' transform='rotate(-30 80 80)'%3EIND AS%3C/text%3E%3Ctext x='30' y='140' font-size='13' font-family='Georgia,serif' fill='%23185FA5' opacity='0.03' transform='rotate(-30 80 80)'%3EICAI%3C/text%3E%3C/svg%3E");
+  background-size:160px 160px;
+}
+.ph,.dash{position:relative;z-index:1}
+.ph{max-width:1300px;margin:0 auto 1.25rem;display:flex;align-items:center;gap:12px}
+.pl{width:40px;height:40px;background:var(--b600);border-radius:var(--r);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0}
+.pt{font-size:20px;font-weight:600}.ps{font-size:13px;color:var(--t2);margin-top:1px}
+.dash{display:grid;grid-template-columns:300px 1fr;max-width:1300px;margin:0 auto;min-height:760px;border:.5px solid var(--bl2);border-radius:var(--rl);overflow:hidden;background:rgba(255,255,255,0.93);box-shadow:0 2px 24px rgba(0,0,0,.10)}
+/* SIDEBAR */
+.sb{border-right:.5px solid var(--bl1);display:flex;flex-direction:column;background:var(--bg2)}
+.sbh{padding:1rem;border-bottom:.5px solid var(--bl1)}
+.sbl{font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.sw{position:relative}
+.sw i{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--t2);pointer-events:none}
+.sw input{width:100%;padding:7px 10px 7px 30px;font-size:13px;border:.5px solid var(--bl2);border-radius:var(--r);background:var(--bg1);color:var(--t1);outline:none;font-family:var(--f)}
+.sw input:focus{border-color:var(--b600)}
+.sl{flex:1;overflow-y:auto;padding:6px}
+.sl::-webkit-scrollbar{width:4px}.sl::-webkit-scrollbar-thumb{background:var(--bl2);border-radius:4px}
+.si{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:var(--r);cursor:pointer;transition:background .13s;margin-bottom:1px}
+.si:hover{background:var(--bg1)}.si.active{background:var(--b50)}
+.sb2{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--b50);color:var(--b700);white-space:nowrap;flex-shrink:0;border:.5px solid var(--b100)}
+.si.active .sb2{background:var(--b100);color:var(--b800)}
+.sn{font-size:12px;color:var(--t2);line-height:1.35}
+.si.active .sn{color:var(--t1);font-weight:500}
+/* MAIN */
+.mn{display:flex;flex-direction:column;min-width:0}
+.vt{display:flex;border-bottom:.5px solid var(--bl1);background:var(--bg2)}
+.tab{padding:.75rem 1.25rem;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;transition:all .13s;display:flex;align-items:center;gap:5px}
+.tab.active{color:var(--b600);border-bottom-color:var(--b600);background:var(--bg1)}
+.tab:hover:not(.active){color:var(--t1);background:rgba(0,0,0,.03)}
+.vc{flex:1;overflow-y:auto;padding:1.5rem}
+.vc::-webkit-scrollbar{width:4px}.vc::-webkit-scrollbar-thumb{background:var(--bl2);border-radius:4px}
+/* CHAT */
+.cv{display:flex;flex-direction:column;height:100%}
+.cm{flex:1;overflow-y:auto;margin-bottom:1rem;display:flex;flex-direction:column;gap:14px;min-height:300px;max-height:calc(100vh - 340px)}
+.cm::-webkit-scrollbar{width:4px}.cm::-webkit-scrollbar-thumb{background:var(--bl2);border-radius:4px}
+.msg{max-width:90%}.msg.user{align-self:flex-end}.msg.bot{align-self:flex-start;max-width:98%;width:98%}
+.mb{padding:11px 14px;border-radius:12px;font-size:13.5px;line-height:1.75}
+.msg.user .mb{background:var(--b600);color:#fff;border-bottom-right-radius:3px}
+.msg.bot .mb{background:var(--bg2);border:.5px solid var(--bl1);color:var(--t1);border-bottom-left-radius:3px}
+/* rich formatting inside bot bubbles */
+.mb p{margin-bottom:.6em}.mb p:last-child{margin-bottom:0}
+.mb ul,.mb ol{margin:.4em 0 .6em 1.2em}
+.mb li{margin-bottom:.35em;line-height:1.65}
+.mb strong{font-weight:600;color:var(--t1)}
+.mb h4{font-size:13px;font-weight:600;margin:.7em 0 .3em;color:var(--b700)}
+.mb .ans-section{margin-bottom:.8em}
+.mb .ans-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--b600);margin-bottom:4px}
+.mb .ex-box{background:var(--b50);border-left:3px solid var(--b600);border-radius:0 6px 6px 0;padding:8px 11px;margin:.5em 0;font-size:13px;line-height:1.65}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;padding-top:10px;border-top:.5px solid var(--bl1)}
+.chip{font-size:11px;font-weight:600;padding:4px 11px;background:var(--b50);color:var(--b600);border:.5px solid var(--b100);border-radius:20px;cursor:pointer;transition:all .13s;display:inline-flex;align-items:center;gap:4px}
+.chip:hover{background:var(--b100);color:var(--b800)}
+.chip i{font-size:12px}
+.chips-label{font-size:11px;color:var(--t2);margin-bottom:5px;font-weight:500}
+/* input row */
+.cir{display:flex;gap:8px;margin-top:4px}
+.cir input{flex:1;padding:10px 13px;font-size:13px;border:.5px solid var(--bl2);border-radius:var(--r);background:var(--bg1);color:var(--t1);outline:none;font-family:var(--f)}
+.cir input:focus{border-color:var(--b600);box-shadow:0 0 0 3px rgba(24,95,165,.08)}
+.cir button{padding:10px 20px;font-size:13px;font-weight:600;background:var(--b600);color:#fff;border:none;border-radius:var(--r);cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--f);transition:background .13s;white-space:nowrap}
+.cir button:hover{background:var(--b700)}
+.cir button:disabled{background:var(--bg2);color:var(--t2);cursor:not-allowed}
+.sps{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.sp{font-size:11.5px;padding:5px 11px;background:var(--bg2);border:.5px solid var(--bl2);border-radius:20px;cursor:pointer;color:var(--t2);transition:all .13s;font-family:var(--f)}
+.sp:hover{background:var(--bg1);color:var(--t1);border-color:var(--bl3)}
+/* typing indicator */
+.typing{display:inline-flex;gap:4px;align-items:center;padding:4px 2px}
+.ld{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--t2);animation:pu 1.3s ease-in-out infinite}
+.stream-cursor{display:inline-block;width:2px;height:1em;background:var(--b600);margin-left:2px;vertical-align:text-bottom;animation:blink 0.7s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.ld:nth-child(2){animation-delay:.18s}.ld:nth-child(3){animation-delay:.36s}
+@keyframes pu{0%,60%,100%{transform:translateY(0);opacity:.3}30%{transform:translateY(-5px);opacity:1}}
+/* EXPLAIN */
+.ev{display:flex;flex-direction:column;gap:1.25rem}
+.eh{display:flex;align-items:flex-start;gap:12px;padding-bottom:1rem;border-bottom:.5px solid var(--bl1)}
+.ebg{font-size:11px;font-weight:700;padding:4px 10px;background:var(--b50);color:var(--b700);border-radius:20px;white-space:nowrap;flex-shrink:0;border:.5px solid var(--b100);margin-top:2px}
+.et{font-size:17px;font-weight:600;margin-bottom:4px}
+.es{font-size:13px;color:var(--t2);line-height:1.6}
+.vc2{background:var(--bg2);border:.5px solid var(--bl1);border-radius:var(--rl);padding:1.1rem 1.25rem}
+.vc2 h3{font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:1rem;display:flex;align-items:center;gap:5px}
+.kps{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kp{background:var(--bg1);border:.5px solid var(--bl1);border-radius:var(--r);padding:10px 12px;display:flex;gap:9px;align-items:flex-start}
+.kpi{font-size:18px;flex-shrink:0;margin-top:1px}
+.kpl{font-size:12px;font-weight:600;margin-bottom:2px}
+.kpt{font-size:12px;color:var(--t2);line-height:1.5}
+.tl{display:flex;flex-direction:column}
+.tli{display:flex;gap:12px}
+.tll{display:flex;flex-direction:column;align-items:center}
+.tld{width:10px;height:10px;border-radius:50%;background:var(--b600);flex-shrink:0;margin-top:4px}
+.tlc{width:2px;flex:1;background:var(--bl1);min-height:20px}
+.tlct{padding-bottom:14px;font-size:12px;color:var(--t2);line-height:1.55}
+.tlct strong{color:var(--t1);font-weight:600;display:block;margin-bottom:1px}
+.exb{background:var(--bg1);border-left:3px solid var(--b600);border-radius:0 var(--r) var(--r) 0;padding:12px 14px}
+.exl{font-size:10px;font-weight:700;color:var(--b600);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.ext{font-size:13px;line-height:1.65}
+.ns{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--t2);padding:3rem;text-align:center}
+.ns i{font-size:40px;color:var(--bl2)}
+/* API banner */
+.ab{background:var(--g50);border:.5px solid var(--g100);border-radius:var(--r);padding:12px 14px;font-size:12px;color:var(--g600);margin-bottom:14px}
+.ab strong{font-weight:600;display:block;margin-bottom:4px;font-size:13px}
+.ab a{color:var(--g600)}
+.akr{display:flex;gap:6px;margin-top:10px}
+.akr input{flex:1;padding:7px 10px;font-size:12px;border:.5px solid var(--g100);border-radius:var(--r);background:#fff;outline:none;font-family:var(--f);color:var(--t1)}
+.akr input:focus{border-color:var(--g600)}
+.akr button{padding:7px 14px;font-size:12px;font-weight:600;background:var(--g600);color:#fff;border:none;border-radius:var(--r);cursor:pointer;font-family:var(--f)}
+.akr button:hover{background:var(--g700)}
+.ks{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--g600);background:var(--g50);border:.5px solid var(--g100);padding:4px 10px;border-radius:20px}
+.clr-btn{font-size:11px;color:var(--t2);background:none;border:none;cursor:pointer;text-decoration:underline;font-family:var(--f)}
+</style>
+</head>
+<body>
+<div class="ph">
+  <div class="pl"><i class="ti ti-book-2"></i></div>
+  <div>
+    <div class="pt">Ind AS Dashboard</div>
+    <div class="ps">Indian Accounting Standards — AI-powered reference &nbsp;·&nbsp; A place you may ask anything about Ind AS. Explained in easy to understand language</div>
+  </div>
+</div>
+<div class="dash">
+  <div class="sb">
+    <div class="sbh">
+      <div class="sbl"><i class="ti ti-books" style="margin-right:3px"></i>Ind AS Standards</div>
+      <div class="sw"><i class="ti ti-search"></i><input type="text" id="std-search" placeholder="Search by topic or number..." oninput="filterStandards(this.value)"></div>
+    </div>
+    <div class="sl" id="standards-list"></div>
+  </div>
+  <div class="mn">
+    <div class="vt">
+      <div class="tab active" onclick="switchTab('chat')" id="tab-chat"><i class="ti ti-robot"></i>J.A.R.V.I.S.</div>
+      <div class="tab" onclick="switchTab('explain')" id="tab-explain"><i class="ti ti-book-2"></i>The Codex</div>
+    </div>
+    <div class="vc" id="main-content"></div>
+  </div>
+</div>
+
+<script>
+const STANDARDS=[
+  {id:"Ind AS 1",  s:"1",   n:"Presentation of Financial Statements",        t:["financial statements","presentation","balance sheet","profit loss","notes"]},
+  {id:"Ind AS 2",  s:"2",   n:"Inventories",                                  t:["inventory","stock","cost","FIFO","weighted average","NRV"]},
+  {id:"Ind AS 7",  s:"7",   n:"Statement of Cash Flows",                      t:["cash flow","operating","investing","financing"]},
+  {id:"Ind AS 8",  s:"8",   n:"Accounting Policies, Estimates & Errors",      t:["accounting policy","estimate","error","retrospective"]},
+  {id:"Ind AS 10", s:"10",  n:"Events After the Reporting Period",            t:["subsequent events","adjusting","non-adjusting","dividends"]},
+  {id:"Ind AS 12", s:"12",  n:"Income Taxes",                                 t:["deferred tax","current tax","DTA","DTL","tax base"]},
+  {id:"Ind AS 16", s:"16",  n:"Property, Plant & Equipment",                  t:["fixed assets","depreciation","PPE","revaluation","impairment"]},
+  {id:"Ind AS 17", s:"17",  n:"Leases (superseded by Ind AS 116)",            t:["lease","operating lease","finance lease"]},
+  {id:"Ind AS 19", s:"19",  n:"Employee Benefits",                            t:["gratuity","leave encashment","provident fund","pension","actuarial"]},
+  {id:"Ind AS 21", s:"21",  n:"Effects of Changes in Foreign Exchange Rates", t:["forex","foreign currency","exchange rate","translation"]},
+  {id:"Ind AS 23", s:"23",  n:"Borrowing Costs",                              t:["borrowing cost","interest capitalization","qualifying asset","loan"]},
+  {id:"Ind AS 24", s:"24",  n:"Related Party Disclosures",                   t:["related party","disclosure","subsidiary","associate","KMP"]},
+  {id:"Ind AS 27", s:"27",  n:"Separate Financial Statements",               t:["separate financials","consolidated","subsidiary investment","parent"]},
+  {id:"Ind AS 28", s:"28",  n:"Investments in Associates & JVs",             t:["associate","joint venture","equity method","significant influence"]},
+  {id:"Ind AS 32", s:"32",  n:"Financial Instruments: Presentation",         t:["financial instrument","equity","debt","compound instrument"]},
+  {id:"Ind AS 33", s:"33",  n:"Earnings Per Share",                           t:["EPS","earnings per share","diluted","basic"]},
+  {id:"Ind AS 36", s:"36",  n:"Impairment of Assets",                        t:["impairment","value in use","recoverable amount","CGU","goodwill"]},
+  {id:"Ind AS 37", s:"37",  n:"Provisions, Contingent Liabilities & Assets", t:["provision","contingent liability","contingent asset","warranty"]},
+  {id:"Ind AS 38", s:"38",  n:"Intangible Assets",                           t:["intangible","goodwill","brand","patent","software","amortisation"]},
+  {id:"Ind AS 40", s:"40",  n:"Investment Property",                         t:["investment property","fair value","rental income","commercial property"]},
+  {id:"Ind AS 41", s:"41",  n:"Agriculture",                                 t:["agriculture","biological asset","harvest","crop","livestock"]},
+  {id:"Ind AS 101",s:"101", n:"First-time Adoption of Ind AS",               t:["first time","transition","opening balance","deemed cost","exemption"]},
+  {id:"Ind AS 102",s:"102", n:"Share-based Payment",                         t:["ESOP","share based","stock option","vesting","RSU"]},
+  {id:"Ind AS 103",s:"103", n:"Business Combinations",                       t:["merger","acquisition","business combination","goodwill","PPA"]},
+  {id:"Ind AS 105",s:"105", n:"Non-current Assets Held for Sale",            t:["held for sale","discontinued operations","disposal group"]},
+  {id:"Ind AS 107",s:"107", n:"Financial Instruments: Disclosures",          t:["financial instrument disclosure","credit risk","liquidity risk","market risk"]},
+  {id:"Ind AS 108",s:"108", n:"Operating Segments",                          t:["segment","operating segment","reportable segment","CODM"]},
+  {id:"Ind AS 109",s:"109", n:"Financial Instruments",                       t:["financial asset","financial liability","ECL","hedge","FVTPL","FVOCI","amortised cost"]},
+  {id:"Ind AS 110",s:"110", n:"Consolidated Financial Statements",           t:["consolidation","subsidiary","control","parent","consolidated"]},
+  {id:"Ind AS 111",s:"111", n:"Joint Arrangements",                          t:["joint arrangement","joint venture","joint operation"]},
+  {id:"Ind AS 112",s:"112", n:"Disclosure of Interests in Other Entities",   t:["disclosure","interest","subsidiary","structured entity"]},
+  {id:"Ind AS 113",s:"113", n:"Fair Value Measurement",                      t:["fair value","level 1","level 2","level 3","hierarchy","measurement"]},
+  {id:"Ind AS 115",s:"115", n:"Revenue from Contracts with Customers",       t:["revenue recognition","contract","performance obligation","variable consideration","5 step"]},
+  {id:"Ind AS 116",s:"116", n:"Leases",                                      t:["lease","right of use asset","lease liability","lessee","lessor"]},
+];
+
+const ED={
+  "Ind AS 1":{
+    sum:"Prescribes the basis for presentation of general purpose financial statements to ensure comparability.",
+    kp:[{i:"📄",l:"Complete Set",t:"Balance sheet, P&L, OCI, cash flow statement, notes, and statement of changes in equity."},
+        {i:"⚖️",l:"Materiality",t:"Omit or aggregate items only if immaterial. Each material class presented separately."},
+        {i:"🔄",l:"Consistency",t:"Presentation and classification maintained from period to period unless change is justified."},
+        {i:"📊",l:"Current vs Non-Current",t:"Assets and liabilities classified as current/non-current on the face of balance sheet."}],
+    ex:"Reliance Industries presents its consolidated balance sheet distinguishing current liabilities (due within 12 months) from non-current (long-term debt). Trade payables of ₹45,000 Cr shown as current; long-term bonds of ₹2 lakh Cr shown as non-current per Ind AS 1.",
+    fs:[{l:"Identify reporting entity",d:"Single entity or group preparing consolidated statements"},
+        {l:"Select presentation currency",d:"Usually INR for Indian companies; disclose if different"},
+        {l:"Classify items",d:"Current vs non-current assets and liabilities"},
+        {l:"Apply materiality",d:"Aggregate immaterial items; present material items separately"},
+        {l:"Add comparative figures",d:"Prior year figures mandatory for all line items"}]
+  },
+  "Ind AS 2":{
+    sum:"Defines how to account for costs of inventories and subsequently recognise them as expense.",
+    kp:[{i:"📦",l:"Cost Measurement",t:"Include purchase price, conversion costs, and other costs to bring inventory to current location/condition."},
+        {i:"📊",l:"Cost Formulas",t:"FIFO or Weighted Average Cost. LIFO is not permitted under Ind AS."},
+        {i:"⚖️",l:"Lower of Cost or NRV",t:"Inventories measured at the lower of cost and Net Realisable Value (NRV)."},
+        {i:"💡",l:"Write-down",t:"Write-down to NRV recognised as expense in the period it occurs."}],
+    ex:"Tata Steel holds 10,000 tonnes of steel coils at cost ₹5,000/tonne (total ₹5 Cr). NRV falls to ₹4,400/tonne. Inventory written down to ₹4.4 Cr — recognising ₹60 lakh as expense per Ind AS 2.",
+    fs:[{l:"Determine cost",d:"Purchase price + import duties + freight + conversion costs"},
+        {l:"Estimate NRV",d:"Expected selling price minus estimated costs to complete and sell"},
+        {l:"Compare cost vs NRV",d:"Choose the lower of the two values"},
+        {l:"Record in books",d:"Any write-down charged to P&L immediately"}]
+  },
+  "Ind AS 7":{
+    sum:"Requires presentation of cash flows under three activities: operating, investing, and financing.",
+    kp:[{i:"💵",l:"Operating Activities",t:"Cash from core business — collections from customers, payments to suppliers and employees."},
+        {i:"🏗️",l:"Investing Activities",t:"Purchase/sale of long-term assets, investments, loans given/repaid."},
+        {i:"🏦",l:"Financing Activities",t:"Proceeds from borrowings, repayment of loans, dividend payments, issue of shares."},
+        {i:"🔀",l:"Two Methods",t:"Direct method (actual cash flows) or indirect method (profit adjusted for non-cash items)."}],
+    ex:"Infosys Q3: Operating cash flow ₹8,200 Cr (net profit + depreciation − working capital increase). Investing: ₹(3,100) Cr (capex on campuses). Financing: ₹(4,500) Cr (buyback + dividends). Net cash increase = ₹600 Cr per Ind AS 7.",
+    fs:[{l:"Start with PBT (indirect method)",d:"Profit before tax from P&L"},
+        {l:"Add back non-cash items",d:"Depreciation, amortisation, provisions, unrealised FX loss"},
+        {l:"Adjust working capital",d:"Increase in debtors = outflow; increase in creditors = inflow"},
+        {l:"Deduct tax paid",d:"Actual tax paid during the year"},
+        {l:"Show investing & financing",d:"Actual cash transactions for capex, loans, dividends, borrowings"}]
+  },
+  "Ind AS 8":{
+    sum:"Sets criteria for selecting and changing accounting policies, and accounting for changes in estimates and prior period errors.",
+    kp:[{i:"📋",l:"Accounting Policies",t:"Apply consistently. Change only if required by Ind AS or gives more reliable/relevant information."},
+        {i:"🔄",l:"Retrospective Change",t:"Policy change applied retrospectively — restate prior periods as if new policy always applied."},
+        {i:"🔮",l:"Change in Estimate",t:"Applied prospectively — no restatement of prior periods (e.g. change in useful life of asset)."},
+        {i:"❌",l:"Prior Period Errors",t:"Correct by restating comparative amounts in the earliest period presented."}],
+    ex:"Wipro changes depreciation method for IT equipment from WDV to SLM. This is a change in accounting policy — prior year financials restated under SLM. If useful life of same asset changes from 4 to 5 years, that's a change in estimate — applied going forward only per Ind AS 8.",
+    fs:[{l:"Identify type of change",d:"Policy change? Estimate change? Error correction?"},
+        {l:"Policy change",d:"Restate all prior periods presented (retrospective)"},
+        {l:"Estimate change",d:"Apply prospectively from current period onwards"},
+        {l:"Error correction",d:"Restate earliest comparative period; adjust opening retained earnings"},
+        {l:"Disclose",d:"Nature of change, reason, and financial impact"}]
+  },
+  "Ind AS 10":{
+    sum:"Determines which events after the reporting period should be reflected in financial statements.",
+    kp:[{i:"✅",l:"Adjusting Events",t:"Provide evidence of conditions existing at reporting date — adjust the financial statements."},
+        {i:"📢",l:"Non-Adjusting Events",t:"Conditions arising after reporting date — disclose only, do not adjust figures."},
+        {i:"💰",l:"Dividends",t:"Dividends declared after reporting date are non-adjusting — do not recognise as liability."},
+        {i:"📅",l:"Going Concern",t:"If going concern assumption is invalid post reporting date, a fundamental change is required."}],
+    ex:"HUL's reporting date is 31 Mar 2024. A major customer declares bankruptcy on 15 Apr 2024 (before financials signed 20 May 2024). The debt existed at 31 Mar — this is adjusting. But a flood destroying a warehouse on 15 Apr is non-adjusting — disclose only per Ind AS 10.",
+    fs:[{l:"Identify the event",d:"Event occurring between reporting date and date of authorisation"},
+        {l:"Test condition",d:"Did condition exist at reporting date? → Adjusting. New condition? → Non-adjusting"},
+        {l:"Adjusting events",d:"Revise estimates, recognise provisions, correct errors in financials"},
+        {l:"Non-adjusting events",d:"Disclose nature and estimated financial effect in notes"},
+        {l:"Dividends",d:"Declare after year-end → disclose only, not a balance sheet liability"}]
+  },
+  "Ind AS 12":{
+    sum:"Prescribes accounting for current and deferred income taxes arising from transactions and events.",
+    kp:[{i:"📅",l:"Current Tax",t:"Tax payable on current year taxable profit per Income Tax Act. Measured at enacted rates."},
+        {i:"⏩",l:"Deferred Tax Asset (DTA)",t:"Future tax benefit — arises when book profit < taxable profit (e.g. excess depreciation claimed for tax)."},
+        {i:"⏪",l:"Deferred Tax Liability (DTL)",t:"Future tax payable — arises when book profit > taxable profit (e.g. accelerated tax depreciation)."},
+        {i:"🔑",l:"Temporary Differences",t:"Difference between carrying amount of asset/liability in books vs tax base."}],
+    ex:"Maruti Suzuki: Machine cost ₹10 Cr. Book depreciation (SLM 10 yr) = ₹1 Cr/yr. Tax depreciation (WDV 30%) = ₹3 Cr Yr1. Taxable profit is ₹2 Cr lower → DTL of ₹2 Cr × 25% = ₹50 lakh created in Yr1. Reverses in later years per Ind AS 12.",
+    fs:[{l:"Calculate book carrying amount",d:"Asset/liability value in financial statements"},
+        {l:"Calculate tax base",d:"Amount attributable to asset/liability for tax purposes"},
+        {l:"Identify temporary differences",d:"Carrying amount minus tax base = temporary difference"},
+        {l:"Compute deferred tax",d:"Temporary difference × applicable tax rate"},
+        {l:"Recognise DTA/DTL",d:"DTA only if probable future taxable profit available to absorb it"}]
+  },
+  "Ind AS 16":{
+    sum:"Prescribes accounting for property, plant and equipment — recognition, depreciation and derecognition.",
+    kp:[{i:"🏭",l:"Initial Recognition",t:"Recognised when future economic benefits will flow and cost can be reliably measured."},
+        {i:"📉",l:"Depreciation",t:"Systematic allocation over useful life. Straight Line (SLM) or Written Down Value (WDV)."},
+        {i:"🔄",l:"Revaluation Model",t:"Optional — carry at fair value less subsequent depreciation and impairment losses."},
+        {i:"🗑️",l:"Derecognition",t:"Remove on disposal or when no future economic benefits expected. Gain/loss to P&L."}],
+    ex:"Infosys buys a server for ₹1 Cr, useful life 5 years, residual value ₹10 lakh. SLM depreciation = (₹1 Cr − ₹10L) ÷ 5 = ₹18 lakh p.a. Carrying value after 3 years = ₹46 lakh per Ind AS 16.",
+    fs:[{l:"Initial recognition",d:"Cost = purchase price + installation + directly attributable costs"},
+        {l:"Determine useful life",d:"Expected usage, wear & tear, technical obsolescence considered"},
+        {l:"Choose method",d:"SLM: equal charge each year. WDV: higher charge in early years"},
+        {l:"Periodic review",d:"Review residual value and useful life at each year-end"}]
+  },
+  "Ind AS 17":{
+    sum:"Classifies leases as finance or operating. Superseded by Ind AS 116 for periods from 1 April 2019.",
+    kp:[{i:"🏢",l:"Finance Lease",t:"Transfers substantially all risks & rewards. Lessee recognises asset + liability."},
+        {i:"🔑",l:"Operating Lease",t:"Payments recognised as expense on straight-line basis over lease term."},
+        {i:"📊",l:"Lessor Accounting",t:"Finance lease: derecognise asset, recognise receivable. Operating: keep asset, recognise income."},
+        {i:"⚠️",l:"Now Superseded",t:"Ind AS 116 replaced Ind AS 17 for annual periods beginning on or after 1 April 2019."}],
+    ex:"XYZ Ltd leases machinery worth ₹50L for 5 years at ₹12L/yr. Lease term = 100% of economic life → finance lease. XYZ records ₹50L asset and ₹50L liability, charging depreciation + interest instead of just ₹12L rental expense per Ind AS 17.",
+    fs:[{l:"Assess lease type",d:"Transfer of risks & rewards? → Finance. Otherwise → Operating"},
+        {l:"Initial measurement",d:"Finance: lower of fair value or PV of minimum lease payments"},
+        {l:"Periodic entries",d:"Finance: depreciation + interest. Operating: straight-line expense"},
+        {l:"Disclosures",d:"Future minimum lease payments, contingent rents, sublease income"}]
+  },
+  "Ind AS 19":{
+    sum:"Prescribes accounting for all forms of employee benefits including short-term, post-employment, and other long-term benefits.",
+    kp:[{i:"💼",l:"Short-term Benefits",t:"Salaries, wages, bonus, PLI — recognised in the period service is rendered."},
+        {i:"🎁",l:"Post-employment Benefits",t:"Gratuity and PF. Defined contribution: expense = contribution. Defined benefit: actuarial valuation required."},
+        {i:"📐",l:"Actuarial Valuation",t:"Projected Unit Credit method used to measure defined benefit obligation (DBO) for gratuity."},
+        {i:"📊",l:"Remeasurements in OCI",t:"Actuarial gains/losses on defined benefit plans recognised in OCI — not reclassified to P&L."}],
+    ex:"HDFC Bank's gratuity liability: actuary estimates DBO = ₹850 Cr using PUC method (salary escalation 7%, discount rate 7.2%). Plan assets = ₹780 Cr. Net liability on balance sheet = ₹70 Cr. Current service cost + interest cost charged to P&L per Ind AS 19.",
+    fs:[{l:"Identify benefit type",d:"Short-term / Post-employment (DC or DB) / Other long-term / Termination"},
+        {l:"Defined contribution",d:"Simply expense the contribution amount — no further obligation"},
+        {l:"Defined benefit — actuarial valuation",d:"PUC method: estimate PV of future benefit earned to date"},
+        {l:"Determine net liability/asset",d:"DBO minus fair value of plan assets"},
+        {l:"P&L vs OCI split",d:"Service cost + net interest → P&L. Remeasurements → OCI"}]
+  },
+  "Ind AS 21":{
+    sum:"Prescribes how to account for transactions in foreign currencies and translating financial statements of foreign operations.",
+    kp:[{i:"💱",l:"Functional Currency",t:"Currency of primary economic environment in which entity operates — determined by facts."},
+        {i:"📅",l:"Transaction Date Rate",t:"Foreign currency transactions initially recorded at spot rate on transaction date."},
+        {i:"🔄",l:"Monetary Items",t:"Retranslate at closing rate each reporting date. Exchange differences go to P&L."},
+        {i:"📦",l:"Non-Monetary Items",t:"Carried at historical rate (cost model) or closing rate (fair value model)."}],
+    ex:"Infosys receives a USD invoice for $10M on 1 Jan (rate ₹82). Recorded at ₹82 Cr. At 31 Mar (year-end), rate is ₹84. The USD receivable (monetary) is retranslated to ₹84 Cr. Exchange gain of ₹2 Cr recognised in P&L per Ind AS 21.",
+    fs:[{l:"Determine functional currency",d:"Which currency primarily influences sales prices and costs?"},
+        {l:"Record transaction",d:"Translate at spot rate on transaction date"},
+        {l:"Year-end restatement",d:"Monetary items → closing rate. Non-monetary → historical rate"},
+        {l:"Recognise differences",d:"Exchange gains/losses on monetary items → P&L"},
+        {l:"Translation of foreign ops",d:"Assets/liabilities → closing rate. Income/expenses → average rate. Differences → OCI"}]
+  },
+  "Ind AS 23":{
+    sum:"Requires capitalisation of borrowing costs directly attributable to acquisition, construction or production of a qualifying asset.",
+    kp:[{i:"🏗️",l:"Qualifying Asset",t:"Asset that necessarily takes substantial time to get ready — factory, ship, power plant, real estate project."},
+        {i:"📌",l:"Capitalise",t:"Borrowing costs directly attributable to qualifying asset added to cost of asset."},
+        {i:"💸",l:"Expense Other Costs",t:"Borrowing costs not related to qualifying asset expensed in P&L immediately."},
+        {i:"🛑",l:"Suspension",t:"Capitalisation suspended when active development is interrupted for extended periods."}],
+    ex:"DLF constructs a commercial tower taking 3 years. Loan of ₹500 Cr @ 9% taken specifically for this project. Annual interest = ₹45 Cr. This ₹45 Cr is capitalised and added to the cost of the building (not expensed) during construction per Ind AS 23.",
+    fs:[{l:"Identify qualifying asset",d:"Will it take substantial time to get ready? Real estate, factories, ships qualify"},
+        {l:"Identify attributable borrowing costs",d:"Specific borrowing: actual interest. General borrowing: capitalisation rate × expenditure"},
+        {l:"Capitalisation period",d:"From when expenditure incurred + activities commenced, until ready for use"},
+        {l:"Suspension",d:"Stop capitalising if active development suspended > briefly"},
+        {l:"Cessation",d:"Stop when asset is substantially ready for intended use or sale"}]
+  },
+  "Ind AS 24":{
+    sum:"Requires disclosure of related party relationships and transactions to help users understand their effect on financial statements.",
+    kp:[{i:"🔗",l:"Who is Related?",t:"Parent, subsidiaries, associates, JVs, KMP (Key Management Personnel), their close family members."},
+        {i:"📋",l:"What to Disclose",t:"Nature of relationship, transaction amount, outstanding balances, terms and conditions."},
+        {i:"👔",l:"KMP Compensation",t:"Must disclose total KMP remuneration — short-term, post-employment, share-based, termination."},
+        {i:"⚠️",l:"Arm's Length Claim",t:"Cannot merely state transactions are at arm's length without disclosing the transactions."}],
+    ex:"Tata Motors discloses: sold vehicles worth ₹1,200 Cr to Tata Sons (parent), received IT services of ₹340 Cr from TCS (fellow subsidiary), paid ₹42 Cr as CEO compensation. All disclosed even if at market price per Ind AS 24.",
+    fs:[{l:"Identify related parties",d:"Map all parents, subsidiaries, associates, JVs, KMP, close family"},
+        {l:"Identify transactions",d:"Sales, purchases, loans, services, guarantees, leases with related parties"},
+        {l:"Measure amounts",d:"Aggregate by type and related party category"},
+        {l:"Disclose in notes",d:"Nature, amount, outstanding balances, terms, provisions for doubtful debts"},
+        {l:"KMP disclosure",d:"Break compensation into categories: short-term, post-employment, share-based"}]
+  },
+  "Ind AS 27":{
+    sum:"Prescribes accounting for investments in subsidiaries, JVs and associates in an entity's separate financial statements.",
+    kp:[{i:"🏢",l:"Separate vs Consolidated",t:"Separate FS are those prepared by a parent in addition to consolidated FS."},
+        {i:"📊",l:"Measurement Options",t:"Investments in subsidiaries/associates/JVs measured at cost OR fair value (Ind AS 109) OR equity method."},
+        {i:"💰",l:"Dividends",t:"Dividends from investee recognised in P&L when right to receive is established."},
+        {i:"📋",l:"Disclosures",t:"Must disclose method used and reasons. List subsidiaries/JVs/associates with ownership %."}],
+    ex:"Tata Consultancy Services Ltd (parent entity standalone) holds investment in TCS subsidiaries at cost of ₹1,200 Cr. Even though subsidiaries are worth ₹5 lakh Cr in market, standalone shows ₹1,200 Cr only. Dividends received from subsidiaries shown as income per Ind AS 27.",
+    fs:[{l:"Prepare separate FS",d:"Required when entity is a parent and also prepares CFS"},
+        {l:"Choose measurement",d:"Cost method, fair value (Ind AS 109), or equity method"},
+        {l:"Apply consistently",d:"Same method for each category — all subsidiaries, all associates"},
+        {l:"Dividend income",d:"Recognise when right to receive is established (declaration date)"},
+        {l:"Disclose",d:"List of entities, ownership %, method used, restrictions on distributions"}]
+  },
+  "Ind AS 28":{
+    sum:"Prescribes accounting for investments in associates and joint ventures using the equity method.",
+    kp:[{i:"🤝",l:"Significant Influence",t:"Presumed if 20%+ voting rights. Reflected through equity method of accounting."},
+        {i:"📈",l:"Equity Method",t:"Investment initially at cost; adjusted for share of post-acquisition profits/losses and OCI."},
+        {i:"📉",l:"Impairment",t:"Test for impairment when indicators exist. Recoverable amount vs carrying amount."},
+        {i:"🚫",l:"Losses Beyond Investment",t:"Stop recognising share of losses once investment is reduced to zero (unless obligation to fund)."}],
+    ex:"Bajaj Auto holds 26% in Bajaj Allianz. Investment cost = ₹500 Cr. Bajaj Allianz earns ₹200 Cr profit. Bajaj Auto recognises 26% = ₹52 Cr as share of profit. Investment on balance sheet becomes ₹552 Cr. Dividend received ₹20 Cr reduces investment to ₹532 Cr per Ind AS 28.",
+    fs:[{l:"Assess significant influence",d:"20%+ voting rights, board representation, policy participation"},
+        {l:"Initial measurement",d:"At cost including transaction costs"},
+        {l:"Annual adjustment",d:"Add share of profit/loss; add share of OCI movements"},
+        {l:"Dividends received",d:"Reduce carrying amount of investment (not income)"},
+        {l:"Impairment test",d:"If indicators exist, test and write down to recoverable amount"}]
+  },
+  "Ind AS 32":{
+    sum:"Establishes principles for presenting financial instruments as equity or liability and for offsetting financial assets and liabilities.",
+    kp:[{i:"📊",l:"Liability vs Equity",t:"Instrument is liability if entity has contractual obligation to deliver cash. Equity if residual interest."},
+        {i:"🔀",l:"Compound Instruments",t:"Convertible bonds split into liability (PV of cash flows) and equity (residual value)."},
+        {i:"🔄",l:"Treasury Shares",t:"Own shares repurchased shown as deduction from equity — not as asset."},
+        {i:"⚖️",l:"Offsetting",t:"Net presentation only when legal right of offset exists AND entity intends to net settle."}],
+    ex:"Tata Power issues ₹1,000 Cr convertible bonds at 6%. PV of bond cash flows at market rate 9% = ₹850 Cr → Liability component. Equity component = ₹1,000 − ₹850 = ₹150 Cr shown in equity. Coupon expense based on 9% effective rate per Ind AS 32.",
+    fs:[{l:"Classify the instrument",d:"Contractual obligation to deliver cash → Liability. Residual interest → Equity"},
+        {l:"Compound instruments",d:"Split into liability (DCF at market rate) and equity (remainder)"},
+        {l:"Interest/dividend treatment",d:"On liability component: interest expense in P&L. On equity: debit equity"},
+        {l:"Offsetting",d:"Only net present if legally enforceable right + intention to net settle"},
+        {l:"Treasury shares",d:"Show as deduction from equity; gains/losses on reissue go to equity only"}]
+  },
+  "Ind AS 33":{
+    sum:"Prescribes computation and presentation of earnings per share to enable comparison of performance across entities.",
+    kp:[{i:"📐",l:"Basic EPS",t:"Profit attributable to ordinary equity holders ÷ weighted average ordinary shares outstanding."},
+        {i:"📉",l:"Diluted EPS",t:"Adjusted for effect of all potentially dilutive instruments (options, convertibles, warrants)."},
+        {i:"⚖️",l:"Weighted Average",t:"Shares weighted by portion of period they are outstanding. Bonus shares treated as if always outstanding."},
+        {i:"📋",l:"Presentation",t:"Both basic and diluted EPS shown on face of P&L for continuing and total operations."}],
+    ex:"Infosys: Net profit ₹24,000 Cr. Shares outstanding: 40 Cr (full year) + 2 Cr issued on 1 Oct (weighted 6/12 = 1 Cr). Weighted avg = 41 Cr. Basic EPS = ₹24,000 Cr ÷ 41 Cr = ₹585.4. ESOPs of 50 lakh shares dilute EPS to ₹582.7 per Ind AS 33.",
+    fs:[{l:"Compute net profit",d:"Profit attributable to ordinary equity holders (after preference dividend)"},
+        {l:"Weighted average shares",d:"Weight shares by days/months outstanding; adjust for bonus/splits retroactively"},
+        {l:"Basic EPS",d:"Profit ÷ weighted average shares"},
+        {l:"Identify dilutive instruments",d:"ESOPs, convertible bonds, warrants — test if dilutive"},
+        {l:"Diluted EPS",d:"Adjusted profit ÷ (weighted avg + dilutive potential shares)"}]
+  },
+  "Ind AS 36":{
+    sum:"Ensures assets are not carried above their recoverable amount — if they are, an impairment loss must be recognised.",
+    kp:[{i:"📉",l:"Impairment Trigger",t:"Internal/external indicators — market decline, obsolescence, poor performance reports."},
+        {i:"💹",l:"Recoverable Amount",t:"Higher of Fair Value Less Costs of Disposal (FVLCD) and Value in Use (VIU)."},
+        {i:"🏗️",l:"Cash Generating Unit",t:"Smallest identifiable group of assets generating independent cash inflows (CGU)."},
+        {i:"🔄",l:"Reversal",t:"Impairment loss can be reversed (except goodwill) if conditions improve."}],
+    ex:"A plant (carrying value ₹80 Cr) shows declining orders. FVLCD = ₹55 Cr, VIU = ₹60 Cr. Recoverable amount = ₹60 Cr. Impairment loss = ₹20 Cr charged to P&L per Ind AS 36.",
+    fs:[{l:"Identify indicators",d:"Market cap < book value, significant market decline, poor performance"},
+        {l:"Estimate recoverable amount",d:"Compute FVLCD and VIU (DCF); take the higher"},
+        {l:"Compare with carrying amount",d:"Carrying amount > recoverable amount → impairment exists"},
+        {l:"Recognise and disclose",d:"Charge to P&L; disclose CGU, assumptions, events causing impairment"}]
+  },
+  "Ind AS 37":{
+    sum:"Prescribes accounting for provisions, contingent liabilities and contingent assets to ensure only genuine obligations are recognised.",
+    kp:[{i:"✅",l:"Provision Recognition",t:"Present obligation + probable outflow of resources + reliable estimate. All 3 criteria must be met."},
+        {i:"❓",l:"Contingent Liability",t:"Possible obligation OR present obligation with low probability/unreliable estimate — disclose only."},
+        {i:"💡",l:"Contingent Asset",t:"Possible asset — disclose when inflow is probable. Never recognise until virtually certain."},
+        {i:"📏",l:"Measurement",t:"Best estimate of expenditure required to settle. For large populations, use expected value method."}],
+    ex:"Hindustan Unilever faces a consumer court case — lawyers assess 70% chance of losing ₹45 Cr. Criteria met → recognise provision of ₹45 Cr. Another case where loss is only 20% probable → disclose as contingent liability only per Ind AS 37.",
+    fs:[{l:"Is there a present obligation?",d:"Legal or constructive obligation arising from past event?"},
+        {l:"Is outflow probable?",d:"More likely than not (>50%) that resources will be required?"},
+        {l:"Can it be estimated?",d:"Can a reliable estimate be made? If not → contingent liability"},
+        {l:"Measure the provision",d:"Best estimate; discount if material time value effect"},
+        {l:"Review annually",d:"Adjust provision for changes in estimates; reverse if no longer probable"}]
+  },
+  "Ind AS 38":{
+    sum:"Prescribes recognition and measurement of intangible assets not dealt with in another standard.",
+    kp:[{i:"🧠",l:"Recognition Criteria",t:"Identifiable, controlled by entity, future economic benefits expected, cost reliably measurable."},
+        {i:"🔬",l:"R&D Costs",t:"Research costs always expensed. Development costs capitalised only when 6 specific criteria met."},
+        {i:"📉",l:"Amortisation",t:"Finite life: amortise over useful life. Indefinite life: no amortisation, test for impairment annually."},
+        {i:"🚫",l:"Internally Generated",t:"Internally generated goodwill, brands, customer lists — NOT recognised as assets."}],
+    ex:"Wipro spends ₹200 Cr on R&D. Research phase ₹80 Cr → fully expensed. Development phase ₹120 Cr and meets all 6 criteria (technical feasibility, intention to complete, ability to use/sell etc.) → capitalised as intangible asset, amortised over 5 years per Ind AS 38.",
+    fs:[{l:"Identify the intangible",d:"Is it identifiable? (separable or from contractual rights)"},
+        {l:"Test recognition criteria",d:"Control + future economic benefits + reliable cost measurement"},
+        {l:"R&D split",d:"Research → expense always. Development → capitalise if 6 criteria met"},
+        {l:"Measure initial cost",d:"Purchase price + directly attributable costs to prepare for use"},
+        {l:"Choose subsequent model",d:"Cost model (cost less amortisation) or revaluation model (active market needed)"}]
+  },
+  "Ind AS 40":{
+    sum:"Prescribes accounting treatment for investment property — property held for rental income or capital appreciation.",
+    kp:[{i:"🏢",l:"What Qualifies",t:"Land or building held for rental income or capital appreciation — not for own use or sale in ordinary course."},
+        {i:"💰",l:"Two Models",t:"Cost model (carry at cost less depreciation) or Fair Value model (revalue at each reporting date)."},
+        {i:"📈",l:"Fair Value Gains",t:"Under fair value model, all gains/losses on revaluation go to P&L (not OCI — unlike PPE)."},
+        {i:"🔀",l:"Transfer",t:"Transfer to/from investment property when use changes — use fair value at transfer date."}],
+    ex:"Embassy REIT holds office parks in Bengaluru. Under fair value model, property valued at ₹38,000 Cr at year-end vs ₹35,000 Cr last year. Fair value gain of ₹3,000 Cr recognised directly in P&L for the year per Ind AS 40.",
+    fs:[{l:"Determine classification",d:"Held for rent/appreciation → Investment property. Own use → PPE. Sale → Inventory"},
+        {l:"Choose measurement model",d:"Cost model or fair value model — apply consistently to all investment property"},
+        {l:"Fair value model",d:"Revalue at each reporting date; gain/loss → P&L directly"},
+        {l:"Transfers",d:"When use changes, transfer at fair value on date of change"},
+        {l:"Disclose",d:"Model used, rental income, direct operating expenses, fair value (even under cost model)"}]
+  },
+  "Ind AS 41":{
+    sum:"Prescribes accounting for biological assets (living plants and animals) and agricultural produce at the point of harvest.",
+    kp:[{i:"🌱",l:"Biological Asset",t:"Living plant or animal — sugarcane, mango trees, dairy cattle, poultry. Measured at fair value less costs to sell."},
+        {i:"🌾",l:"Agricultural Produce",t:"Harvested produce (sugarcane juice, milk, eggs). Measured at fair value at point of harvest."},
+        {i:"📈",l:"Fair Value Gains/Losses",t:"Changes in fair value of biological assets recognised in P&L in the period of change."},
+        {i:"🏭",l:"After Harvest",t:"After harvest, Ind AS 2 (Inventories) applies — not Ind AS 41."}],
+    ex:"EID Parry holds sugarcane crop (biological asset) on 10,000 acres. At 31 Mar, crop fair value = ₹120 Cr (vs ₹90 Cr last year). Fair value gain of ₹30 Cr recognised in P&L. On harvest, sugarcane juice transferred to inventory at ₹120 Cr (fair value) per Ind AS 41.",
+    fs:[{l:"Identify biological asset",d:"Is it a living plant or animal controlled by the entity?"},
+        {l:"Measure at fair value",d:"Fair value less estimated costs to sell (point-of-sale costs)"},
+        {l:"Recognise FV changes",d:"Gains/losses from FV changes → P&L each period"},
+        {l:"Harvest point",d:"Harvest at FV less costs to sell → becomes opening cost under Ind AS 2"},
+        {l:"Government grants",d:"Unconditional grants for biological assets at FV → recognise in P&L when receivable"}]
+  },
+  "Ind AS 101":{
+    sum:"Prescribes procedures when an entity adopts Ind AS for the first time — sets the starting point for Ind AS reporting.",
+    kp:[{i:"📅",l:"Opening Balance Sheet",t:"Prepare Ind AS opening balance sheet at the transition date (typically 1 April 2015 or 2016)."},
+        {i:"✅",l:"Mandatory Exceptions",t:"Certain treatments cannot be applied retrospectively — e.g. estimates, derecognition of financial assets."},
+        {i:"🎯",l:"Optional Exemptions",t:"Entities may choose exemptions — e.g. deemed cost for PPE, past business combinations."},
+        {i:"📋",l:"Reconciliation",t:"Mandatory disclosure reconciling equity and profit from previous GAAP to Ind AS."}],
+    ex:"Vedanta Limited: On transition to Ind AS (1 Apr 2015), elected deemed cost exemption for PPE — carries PPE at previous GAAP carrying value instead of full retrospective Ind AS 16 application. Must disclose ₹X Cr difference in equity reconciliation per Ind AS 101.",
+    fs:[{l:"Set transition date",d:"Beginning of earliest comparative period (usually 1 April 2015 or 2016)"},
+        {l:"Prepare opening balance sheet",d:"Recognise all Ind AS assets/liabilities; derecognise non-qualifying items"},
+        {l:"Choose optional exemptions",d:"Deemed cost, past business combinations, employee benefits corridor, etc."},
+        {l:"Apply mandatory exceptions",d:"Cannot restate estimates, hedge accounting, derecognition of financial instruments"},
+        {l:"Reconcile and disclose",d:"Equity reconciliation at transition date and end of comparative period; P&L reconciliation"}]
+  },
+  "Ind AS 102":{
+    sum:"Prescribes accounting for share-based payment transactions — equity-settled, cash-settled, and choice transactions.",
+    kp:[{i:"📈",l:"Equity-Settled",t:"Employee services received measured at fair value of equity instruments at grant date. Recognised over vesting period."},
+        {i:"💵",l:"Cash-Settled",t:"Liability remeasured at fair value of the SAR/phantom stock at each reporting date until settlement."},
+        {i:"⏳",l:"Vesting Period",t:"Expense recognised over vesting period — straight-line or accelerated per vesting schedule."},
+        {i:"🔢",l:"Fair Value",t:"Options valued using Black-Scholes or binomial model at grant date (equity-settled)."}],
+    ex:"Infosys grants 1 lakh ESOPs to employees at exercise price ₹1,400 on 1 Apr 2023. Fair value per option = ₹350 (Black-Scholes). Total cost = ₹3.5 Cr over 3-year vesting. Annual P&L charge = ₹1.17 Cr. Credited to 'Share Options Outstanding' in equity per Ind AS 102.",
+    fs:[{l:"Identify the arrangement",d:"Equity-settled (shares/options) or cash-settled (SARs)?"},
+        {l:"Measure fair value",d:"Equity-settled: FV at grant date. Cash-settled: FV at each reporting date"},
+        {l:"Determine vesting conditions",d:"Service conditions, performance conditions — market vs non-market"},
+        {l:"Recognise over vesting period",d:"Cumulative expense based on best estimate of vesting"},
+        {l:"Settlement",d:"Equity-settled: transfer from option reserve to share capital. Cash-settled: derecognise liability"}]
+  },
+  "Ind AS 103":{
+    sum:"Prescribes accounting for business combinations using the acquisition method — how to recognise and measure acquired assets, liabilities and goodwill.",
+    kp:[{i:"🎯",l:"Acquisition Method",t:"Identify acquirer, determine acquisition date, recognise and measure identifiable assets and liabilities at fair value."},
+        {i:"💡",l:"Goodwill",t:"Excess of consideration over fair value of net identifiable assets. Not amortised — tested for impairment annually."},
+        {i:"🔀",l:"Common Control",t:"Business combinations under common control excluded — accounted at book values (predecessor cost)."},
+        {i:"💰",l:"Contingent Consideration",t:"Earn-outs recognised at fair value at acquisition date; changes in fair value post-acquisition → P&L."}],
+    ex:"Tata Steel acquires a steel company for ₹5,000 Cr. Fair value of net assets = ₹3,800 Cr (inventory ₹800 Cr, plant ₹2,500 Cr, brand ₹300 Cr, liabilities ₹800 Cr). Goodwill = ₹5,000 − ₹3,800 = ₹1,200 Cr. Goodwill not amortised, tested annually per Ind AS 103.",
+    fs:[{l:"Identify the acquirer",d:"Which entity obtains control? Usually the one paying consideration"},
+        {l:"Determine acquisition date",d:"Date on which acquirer obtains control"},
+        {l:"Recognise net assets at FV",d:"All identifiable assets (incl. intangibles) and liabilities at fair value"},
+        {l:"Compute goodwill",d:"Consideration + NCI – FV of net assets = Goodwill"},
+        {l:"Post-acquisition",d:"Goodwill: annual impairment test. Contingent consideration changes: P&L"}]
+  },
+  "Ind AS 105":{
+    sum:"Prescribes accounting for non-current assets (and disposal groups) classified as held for sale and discontinued operations.",
+    kp:[{i:"🏷️",l:"Held for Sale Criteria",t:"Available for immediate sale + sale highly probable + management committed + expected within 12 months."},
+        {i:"📊",l:"Measurement",t:"Carried at lower of carrying amount and fair value less costs to sell. No depreciation once classified."},
+        {i:"🛑",l:"Stop Depreciation",t:"Depreciation ceases when asset classified as held for sale."},
+        {i:"📋",l:"Discontinued Operations",t:"Component being sold/abandoned — results shown separately in P&L, net of tax."}],
+    ex:"Mahindra & Mahindra decides to sell its aerospace division. Division classified as held for sale at 31 Mar: carrying value ₹1,200 Cr, FV less costs to sell = ₹1,050 Cr. Write-down of ₹150 Cr. Depreciation stops. Aerospace P&L shown separately as discontinued operations per Ind AS 105.",
+    fs:[{l:"Test classification criteria",d:"Committed plan + active marketing + 12-month completion expected + price reasonable"},
+        {l:"Reclassify on balance sheet",d:"Separate line: 'Assets held for sale' in current assets"},
+        {l:"Measure at LCNRV",d:"Lower of carrying amount vs fair value less costs to sell"},
+        {l:"Stop depreciation",d:"From date of classification — no further depreciation/amortisation"},
+        {l:"Discontinued operations",d:"Separate P&L section showing revenue, expenses, tax of discontinued component"}]
+  },
+  "Ind AS 107":{
+    sum:"Requires disclosures about significance of financial instruments and risks arising from them — credit, liquidity and market risk.",
+    kp:[{i:"📊",l:"Significance Disclosures",t:"Carrying amounts by category, fair values, income/expense by category, collateral pledged."},
+        {i:"⚠️",l:"Credit Risk",t:"Maximum exposure, credit quality analysis, ECL movement table, collateral held."},
+        {i:"💧",l:"Liquidity Risk",t:"Maturity analysis of financial liabilities — contractual undiscounted cash flows."},
+        {i:"📈",l:"Market Risk",t:"Sensitivity analysis for interest rate risk, currency risk, other price risk."}],
+    ex:"HDFC Bank's Ind AS 107 disclosures: Stage 1/2/3 ECL movement table, ₹X Cr gross loans by credit rating, maturity profile of deposits and borrowings, sensitivity: 100 bps interest rate rise → impact of ₹X Cr on NII, USD sensitivity: ₹1 change → ₹X Cr P&L impact.",
+    fs:[{l:"Disclose carrying amounts",d:"Financial assets/liabilities by category (FVTPL, FVOCI, amortised cost)"},
+        {l:"Credit risk",d:"Max exposure, collateral, ECL tables, credit quality, write-offs"},
+        {l:"Liquidity risk",d:"Maturity buckets for all financial liabilities incl. derivatives"},
+        {l:"Market risk",d:"Sensitivity analysis for IR, FX, equity price risk"},
+        {l:"Fair value hierarchy",d:"Level 1/2/3 classification, transfers between levels, valuation techniques"}]
+  },
+  "Ind AS 108":{
+    sum:"Requires disclosure of information about operating segments based on internal management reports (management approach).",
+    kp:[{i:"👔",l:"Management Approach",t:"Segments are components regularly reviewed by CODM (Chief Operating Decision Maker) to allocate resources."},
+        {i:"📏",l:"Reportable Segment",t:"Segment is reportable if revenue, profit or assets ≥ 10% of combined totals. Also '75% test' applies."},
+        {i:"📊",l:"Segment Information",t:"Revenue (external + inter-segment), profit/loss, assets, liabilities, capex, depreciation."},
+        {i:"🔄",l:"Reconciliation",t:"Segment totals reconciled to entity's financial statement totals."}],
+    ex:"Wipro has 3 segments: IT Services, IT Products, Others. IT Services revenue = ₹80,000 Cr (>10% of ₹93,000 Cr total) → reportable. CEO (CODM) reviews monthly P&L by segment. Segment assets, liabilities, and capex disclosed per Ind AS 108.",
+    fs:[{l:"Identify CODM",d:"Person or group making resource allocation and performance assessment decisions"},
+        {l:"Identify operating segments",d:"Components reviewed by CODM with discrete financial information"},
+        {l:"Apply quantitative thresholds",d:"10% test on revenue, profit, assets. 75% external revenue test"},
+        {l:"Disclose segment information",d:"Revenue, profit, assets, liabilities, capex, depreciation per segment"},
+        {l:"Reconcile",d:"Reconcile segment totals to consolidated/entity totals"}]
+  },
+  "Ind AS 109":{
+    sum:"Classification, measurement, ECL impairment and hedge accounting of financial instruments.",
+    kp:[{i:"📊",l:"3 Categories",t:"Amortised Cost, FVOCI (Fair Value through OCI), FVTPL (Fair Value through P&L)."},
+        {i:"⚠️",l:"ECL Model",t:"Expected Credit Loss — forward-looking 3-stage model based on credit deterioration."},
+        {i:"🛡️",l:"Hedge Accounting",t:"Fair value hedge, cash flow hedge, net investment hedge."},
+        {i:"🔀",l:"Classification Driver",t:"Business model test + SPPI (Solely Payments of Principal & Interest) test."}],
+    ex:"HDFC Bank: Stage 1 (performing) — 12-month ECL. Stage 2 (SICR) — lifetime ECL. Stage 3 (defaulted) — lifetime ECL + interest on net carrying amount. Replaces old incurred loss model per Ind AS 109.",
+    fs:[{l:"Business model test",d:"Hold-to-collect, hold-to-collect-and-sell, or trading?"},
+        {l:"SPPI test",d:"Do cash flows represent only principal and interest?"},
+        {l:"Assign category",d:"Amortised cost / FVOCI / FVTPL based on the two tests"},
+        {l:"Apply ECL",d:"Stage 1: 12-month ECL. Stage 2/3: Lifetime ECL"}]
+  },
+  "Ind AS 110":{
+    sum:"Establishes principles for presenting consolidated financial statements when an entity controls one or more entities.",
+    kp:[{i:"🎛️",l:"Control Definition",t:"Power over investee + exposure to variable returns + ability to use power to affect returns."},
+        {i:"📊",l:"Consolidation Procedure",t:"Combine line-by-line, eliminate intercompany transactions, recognise NCI."},
+        {i:"👥",l:"Non-Controlling Interest",t:"Equity in subsidiary not attributable to parent — presented separately in equity."},
+        {i:"📅",l:"Uniform Policies",t:"Subsidiary financial statements adjusted to parent's accounting policies before consolidation."}],
+    ex:"Tata Sons consolidates Tata Motors, TCS, Tata Steel etc. For Tata Motors: combine all assets/liabilities line-by-line, eliminate ₹X Cr intercompany loans and sales between Tata entities, show minority shareholders' equity as NCI separately in consolidated equity per Ind AS 110.",
+    fs:[{l:"Assess control",d:"Does parent have power + variable returns exposure + ability to affect returns?"},
+        {l:"Align accounting policies",d:"Adjust subsidiary FS to parent's policies (e.g. depreciation method)"},
+        {l:"Combine line-by-line",d:"Add parent and subsidiary assets, liabilities, income, expenses"},
+        {l:"Eliminate intercompany",d:"Remove intragroup sales, loans, dividends, unrealised profits in inventory"},
+        {l:"Recognise NCI",d:"NCI share of net assets in equity; NCI share of profit in P&L"}]
+  },
+  "Ind AS 111":{
+    sum:"Prescribes accounting for interests in joint arrangements — joint operations and joint ventures.",
+    kp:[{i:"🤝",l:"Joint Control",t:"Contractually agreed sharing of control — decisions require unanimous consent of parties sharing control."},
+        {i:"🔀",l:"Two Types",t:"Joint Operation (rights to assets/obligations for liabilities) vs Joint Venture (rights to net assets only)."},
+        {i:"📊",l:"Joint Operation",t:"Recognise your share of assets, liabilities, revenues, expenses directly in your FS."},
+        {i:"💡",l:"Joint Venture",t:"Account using equity method (Ind AS 28) — single line investment on balance sheet."}],
+    ex:"ONGC and Total form a joint operation for an oil block (50:50). ONGC recognises 50% of oil assets, 50% of costs directly in its books. Separately, if it were a JV company, ONGC would show one line: 'Investment in JV ₹X Cr' on balance sheet per Ind AS 111.",
+    fs:[{l:"Assess joint control",d:"Contractual arrangement? Unanimous consent required for relevant decisions?"},
+        {l:"Classify the arrangement",d:"Rights to assets/liabilities → Joint Operation. Rights to net assets → Joint Venture"},
+        {l:"Joint operation accounting",d:"Recognise share of each asset, liability, revenue, expense directly"},
+        {l:"Joint venture accounting",d:"Apply equity method per Ind AS 28"},
+        {l:"Disclose",d:"Nature and extent of interests, risks, commitments, contingent liabilities"}]
+  },
+  "Ind AS 112":{
+    sum:"Requires disclosure of interests in subsidiaries, associates, joint arrangements and unconsolidated structured entities.",
+    kp:[{i:"📋",l:"Subsidiaries",t:"List all subsidiaries, ownership %, NCI, restrictions on dividend/asset transfers, significant judgements."},
+        {i:"🤝",l:"Associates & JVs",t:"Summarised financial information, FV if listed, unrecognised losses, restrictions."},
+        {i:"🏗️",l:"Structured Entities",t:"Nature, purpose, size, activities; maximum loss exposure; financial support provided."},
+        {i:"⚠️",l:"Significant Judgements",t:"Disclose judgements made in determining control, joint control, or significant influence."}],
+    ex:"Reliance Industries' Ind AS 112 note lists 236 subsidiaries, 22 associates, 19 JVs. Discloses ₹15,000 Cr of restricted cash in overseas subsidiaries, summarised financials of material associates, and judgements on whether SPVs are controlled per Ind AS 112.",
+    fs:[{l:"List all interests",d:"Subsidiaries, associates, JVs, structured entities"},
+        {l:"Subsidiary disclosures",d:"Ownership %, NCI amounts, restrictions, risk of loss to parent"},
+        {l:"Associate/JV disclosures",d:"Summarised FS, FV if publicly listed, unrecognised losses"},
+        {l:"Structured entities",d:"Unconsolidated: nature, risks, maximum exposure, support provided"},
+        {l:"Judgements",d:"How control, joint control, significant influence were determined"}]
+  },
+  "Ind AS 113":{
+    sum:"Defines fair value, establishes a framework for measuring it, and requires disclosures about fair value measurements.",
+    kp:[{i:"💹",l:"Fair Value Definition",t:"Price that would be received to sell an asset or paid to transfer a liability in an orderly transaction — exit price."},
+        {i:"1️⃣",l:"Level 1",t:"Quoted prices in active markets for identical assets/liabilities — most reliable."},
+        {i:"2️⃣",l:"Level 2",t:"Observable inputs other than Level 1 — comparable transactions, yield curves, credit spreads."},
+        {i:"3️⃣",l:"Level 3",t:"Unobservable inputs based on entity's own assumptions — DCF models, internal data."}],
+    ex:"HDFC Bank measures government bonds at Level 1 (NSE quoted prices). Corporate bonds at Level 2 (comparable bond yields). Unlisted equity investments at Level 3 (DCF model, 12% discount rate assumption). Discloses sensitivity: 1% change in discount rate → ₹X Cr change in FV per Ind AS 113.",
+    fs:[{l:"Define the asset/liability",d:"What is being measured? In which market? (principal or most advantageous)"},
+        {l:"Determine participants",d:"Market participants who would price the asset/liability"},
+        {l:"Select valuation approach",d:"Market approach, income approach (DCF), or cost approach"},
+        {l:"Classify in hierarchy",d:"Level 1 (quoted) → Level 2 (observable) → Level 3 (unobservable)"},
+        {l:"Disclose",d:"Level classification, valuation techniques, sensitivity for Level 3 measurements"}]
+  },
+  "Ind AS 114":{
+    sum:"Permits rate-regulated entities to continue using their previous GAAP accounting for regulatory deferral account balances on first-time adoption.",
+    kp:[{i:"⚡",l:"Who it applies to",t:"Entities subject to rate regulation — primarily power utilities, pipeline companies, toll roads."},
+        {i:"📋",l:"Regulatory Deferral",t:"Amounts added to/deducted from tariff in future periods to recover costs or return over-collections."},
+        {i:"🔄",l:"Presentation",t:"Regulatory deferral balances shown as separate line items after other assets/liabilities."},
+        {i:"⚠️",l:"Interim Standard",t:"Ind AS 114 is temporary — full standard on rate regulation (IFRS 17 equivalent) under development."}],
+    ex:"NTPC (power generator): regulators allow recovery of ₹500 Cr unabsorbed fixed costs over next 3 years in future tariffs. Under Ind AS 114, NTPC shows ₹500 Cr as regulatory deferral asset on its balance sheet (separate from other assets) per Ind AS 114.",
+    fs:[{l:"Confirm applicability",d:"Is entity subject to rate regulation? Did it have previous GAAP deferral balances?"},
+        {l:"Continue previous accounting",d:"Continue recognition of regulatory deferral balances from previous GAAP"},
+        {l:"Present separately",d:"Show as separate lines after all other assets and liabilities"},
+        {l:"Present separately in P&L",d:"Net movement in regulatory balances shown as separate line in P&L and OCI"},
+        {l:"Disclose",d:"Nature of regulation, risks, regulatory assets/liabilities and their expected recovery"}]
+  },
+  "Ind AS 115":{
+    sum:"5-step model for revenue recognition — recognise when (or as) performance obligations are satisfied.",
+    kp:[{i:"📋",l:"Identify Contract",t:"Agreement creating enforceable rights and obligations between entity and customer."},
+        {i:"🎯",l:"Identify Obligations",t:"Each distinct good or service is a separate performance obligation."},
+        {i:"💰",l:"Transaction Price",t:"Amount of consideration expected including variable consideration."},
+        {i:"✅",l:"Recognise Revenue",t:"When/as performance obligation is satisfied — at a point in time or over time."}],
+    ex:"Wipro signs ₹12 Cr contract: software + 1 yr maintenance. Software = ₹9 Cr at delivery. Maintenance = ₹3 Cr over 12 months (₹25L/month). Two distinct obligations, two recognition patterns per Ind AS 115.",
+    fs:[{l:"Step 1 — Identify contract",d:"Written/oral agreement with commercial substance"},
+        {l:"Step 2 — Identify obligations",d:"Distinct goods/services the entity promises to transfer"},
+        {l:"Step 3 — Determine price",d:"Fixed + variable consideration, financing component"},
+        {l:"Step 4 — Allocate price",d:"Allocate based on relative standalone selling prices"},
+        {l:"Step 5 — Recognise revenue",d:"When control transfers to the customer"}]
+  },
+  "Ind AS 116":{
+    sum:"Requires lessees to recognise nearly all leases on the balance sheet as ROU asset + lease liability.",
+    kp:[{i:"🏢",l:"Right-of-Use Asset",t:"Lessee recognises ROU asset = PV of lease payments + initial direct costs."},
+        {i:"💳",l:"Lease Liability",t:"Liability = PV of future lease payments at implicit rate or incremental borrowing rate."},
+        {i:"📉",l:"P&L Impact",t:"Depreciation on ROU + interest on liability (front-loaded cost vs old straight-line)."},
+        {i:"🔑",l:"Lessor Unchanged",t:"Lessor accounting similar to Ind AS 17 — finance vs operating still applies."}],
+    ex:"Reliance Retail leases a store for 5 years at ₹20L/month. PV of payments = ₹8.5 Cr. Balance sheet shows ₹8.5 Cr ROU asset and ₹8.5 Cr lease liability on Day 1 per Ind AS 116.",
+    fs:[{l:"Identify lease",d:"Does the contract convey right to control an identified asset?"},
+        {l:"Measure lease liability",d:"PV of lease payments using implicit rate or incremental borrowing rate"},
+        {l:"Recognise ROU asset",d:"Lease liability + initial direct costs + prepaid payments"},
+        {l:"Subsequent measurement",d:"Depreciate ROU (straight line); unwind liability at effective interest rate"}]
+  }
+};
+
+let curStd=null, history=[], loading=false, filtered=[...STANDARDS];
+let apiKey=localStorage.getItem('ind_as_gemini')||'';
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+// Convert plain text with markdown-like formatting to safe HTML
+function formatReply(text){
+  // escape first
+  let t = esc(text);
+  // bold **text**
+  t = t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  // headers ### or ##
+  t = t.replace(/^#{1,4}\s+(.+)$/gm,'<h4>$1</h4>');
+  // bullet lists
+  t = t.replace(/^[\*\-]\s+(.+)$/gm,'<li>$1</li>');
+  t = t.replace(/(<li>.*<\/li>)/s, (m)=>`<ul>${m}</ul>`);
+  // numbered lists
+  t = t.replace(/^\d+\.\s+(.+)$/gm,'<li>$1</li>');
+  // wrap consecutive <li> not already in ul
+  t = t.replace(/(<li>[^]*?<\/li>)(?!\s*<\/[ou]l>)/g, m => {
+    if(m.startsWith('<ul>') || m.startsWith('<ol>')) return m;
+    return `<ul>${m}</ul>`;
+  });
+  // line breaks → paragraphs (double newline = paragraph break)
+  const paras = t.split(/\n{2,}/);
+  t = paras.map(p=>{
+    p = p.trim();
+    if(!p) return '';
+    if(p.startsWith('<h4>')||p.startsWith('<ul>')||p.startsWith('<ol>')) return p;
+    // single newlines within para
+    p = p.replace(/\n/g,'<br>');
+    return `<p>${p}</p>`;
+  }).filter(Boolean).join('');
+  return t;
+}
+
+function renderList(list){
+  document.getElementById('standards-list').innerHTML=list.map(s=>
+    `<div class="si${curStd===s.id?' active':''}" onclick="sel('${s.id}')">
+      <span class="sb2">Ind AS ${s.s}</span><span class="sn">${s.n}</span></div>`
+  ).join('');
+}
+
+function filterStandards(q){
+  q=q.toLowerCase();
+  filtered=!q?[...STANDARDS]:STANDARDS.filter(s=>
+    s.n.toLowerCase().includes(q)||s.id.toLowerCase().includes(q)||s.t.some(t=>t.toLowerCase().includes(q)));
+  renderList(filtered);
+}
+
+function sel(id){curStd=id;renderList(filtered);switchTab('explain')}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  tab==='chat'?renderChat():renderExplain(curStd);
+}
+
+function renderExplain(id){
+  const c=document.getElementById('main-content');
+  if(!id){c.innerHTML=`<div class="ns"><i class="ti ti-book-off"></i><p style="font-size:14px;font-weight:600;margin-top:8px">No standard selected</p><p style="font-size:13px;margin-top:4px">Ask in the AI tab or click a standard from the sidebar</p></div>`;return}
+  const std=STANDARDS.find(s=>s.id===id);
+  const d=ED[id];
+  if(!d){
+    // Should not reach here — all standards have data
+    c.innerHTML=`<div class="ns"><i class="ti ti-book-off"></i><p style="font-size:14px;font-weight:600;margin-top:8px">${id} — ${std.n}</p><p style="font-size:13px;margin-top:4px">Ask the AI assistant about this standard for a detailed explanation.</p><button onclick="switchTab('chat')" style="margin-top:12px;padding:7px 16px;font-size:12px;font-weight:600;border:.5px solid var(--bl2);border-radius:var(--r);background:var(--b600);color:#fff;cursor:pointer;font-family:var(--f)">Ask AI about ${id} →</button></div>`;
+    return;
+  }
+  c.innerHTML=`<div class="ev">
+    <div class="eh"><span class="ebg">${id}</span><div><div class="et">${std.n}</div><div class="es">${d.sum}</div></div></div>
+    <div class="vc2"><h3><i class="ti ti-bulb" style="margin-right:4px"></i>Key concepts</h3>
+      <div class="kps">${d.kp.map(k=>`<div class="kp"><span class="kpi">${k.i}</span><div><div class="kpl">${k.l}</div><div class="kpt">${k.t}</div></div></div>`).join('')}</div></div>
+    <div class="vc2"><h3><i class="ti ti-git-branch" style="margin-right:4px"></i>How it works — step by step</h3>
+      <div class="tl">${d.fs.map((s,i)=>`<div class="tli"><div class="tll"><div class="tld"></div>${i<d.fs.length-1?'<div class="tlc"></div>':''}</div><div class="tlct"><strong>${s.l}</strong>${s.d}</div></div>`).join('')}</div></div>
+    <div class="vc2"><h3><i class="ti ti-school" style="margin-right:4px"></i>Real example — Indian company</h3>
+      <div class="exb"><div class="exl">Practical illustration</div><div class="ext">${d.ex}</div></div></div>
+  </div>`;
+}
+
+function saveKey(){
+  const v=document.getElementById('api-key-input').value.trim();
+  if(v){apiKey=v;localStorage.setItem('ind_as_gemini',v);renderChat();}
+}
+function clearKey(){apiKey='';localStorage.removeItem('ind_as_gemini');renderChat();}
+
+function renderChat(){
+  const c=document.getElementById('main-content');
+  const banner=apiKey
+    ?`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <span class="ks"><i class="ti ti-check" style="font-size:13px"></i>Gemini API key active</span>
+        <button class="clr-btn" onclick="clearKey()">Change key</button>
+       </div>`
+    :`<div class="ab">
+        <strong><i class="ti ti-key" style="margin-right:4px"></i>Enter your FREE Gemini API key</strong>
+        No credit card needed. Get it in 30 seconds at <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
+        <div class="akr">
+          <input type="password" id="api-key-input" placeholder="AIza..." onkeydown="if(event.key==='Enter')saveKey()">
+          <button onclick="saveKey()">Save &amp; Start</button>
+        </div></div>`;
+
+  c.innerHTML=`<div class="cv">${banner}
+    <div class="cm" id="cm"></div>
+    <div style="margin-bottom:10px">
+      <div style="font-size:11px;color:var(--t2);margin-bottom:5px;font-weight:500">Quick questions:</div>
+      <div class="sps">
+        <span class="sp" onclick="sugg(this)">Which standard covers revenue recognition?</span>
+        <span class="sp" onclick="sugg(this)">How to account for a lease under Ind AS 116?</span>
+        <span class="sp" onclick="sugg(this)">Explain ECL model in banking</span>
+        <span class="sp" onclick="sugg(this)">How is goodwill impairment tested?</span>
+        <span class="sp" onclick="sugg(this)">What is deferred tax asset and liability?</span>
+        <span class="sp" onclick="sugg(this)">How to account for ESOP under Ind AS?</span>
+        <span class="sp" onclick="sugg(this)">Explain the 5-step revenue model with example</span>
+      </div>
+    </div>
+    <div class="cir">
+      <input type="text" id="ci" placeholder="Ask any accounting question in plain English..." onkeydown="if(event.key==='Enter')send()">
+      <button id="sb" onclick="send()"><i class="ti ti-send"></i> Ask</button>
+    </div>
+  </div>`;
+  renderMsgs();
+}
+
+function renderMsgs(){
+  const el=document.getElementById('cm');
+  if(!el)return;
+  if(!history.length){
+    el.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--t2);text-align:center;padding:2rem">
+      <i class="ti ti-robot" style="font-size:40px;color:var(--bl2)"></i>
+      <p style="font-size:14px;font-weight:600;margin-top:4px">Your Ind AS AI Assistant</p>
+      <p style="font-size:13px;line-height:1.6;max-width:380px">Ask any accounting question in plain English. I'll give you a full explanation with the relevant standard, key rules, and a real Indian company example — then you can click to explore it visually.</p>
+    </div>`;
+    return;
+  }
+  el.innerHTML=history.map(m=>{
+    if(m.r==='u') return`<div class="msg user"><div class="mb">${esc(m.t)}</div></div>`;
+    let chips='';
+    if(m.stds&&m.stds.length){
+      chips=`<div class="chips"><div class="chips-label">Click to explore visually:</div>${m.stds.map(s=>`<span class="chip" onclick="sel('${s}')"><i class="ti ti-layout-board"></i>${s}</span>`).join('')}</div>`;
+    }
+    return`<div class="msg bot"><div class="mb">${m.html}${chips}</div></div>`;
+  }).join('')+(loading?`<div class="msg bot"><div class="mb"><div class="typing"><span class="ld"></span><span class="ld"></span><span class="ld"></span></div></div></div>`:'');
+  el.scrollTop=el.scrollHeight;
+}
+
+function sugg(el){const i=document.getElementById('ci');if(i)i.value=el.textContent.trim();send();}
+
+async function send(){
+  const inp=document.getElementById('ci'),btn=document.getElementById('sb');
+  if(!inp||loading)return;
+  const text=inp.value.trim();
+  if(!text)return;
+  if(!apiKey){alert('Please enter your free Gemini API key first.');return;}
+  inp.value='';
+  history.push({r:'u',t:text});
+  loading=true;if(btn)btn.disabled=true;renderMsgs();
+
+  const stdList=STANDARDS.map(s=>`${s.id}: ${s.n}`).join('\n');
+
+  const sys=`You are a senior Chartered Accountant and expert on Indian Accounting Standards (Ind AS). 
+A user asks you an accounting question. Your job is to give a thorough, useful answer.
+
+FORMAT your response like this:
+
+**What this is about**
+[1-2 sentences explaining the accounting concept in plain English]
+
+**Relevant Ind AS Standard(s)**
+[Name the standard(s) and explain why they apply]
+
+**Key Rules & Requirements**
+[3-5 bullet points covering the most important rules from the standard]
+
+**How it works in practice**
+[Step by step explanation if applicable]
+
+**Real Indian Company Example**
+[A concrete numerical example using a well-known Indian company like Tata, Infosys, HDFC, Wipro, Reliance, Maruti etc. with actual numbers in rupees]
+
+**Common Mistakes to Avoid**
+[1-2 common errors companies make]
+
+STANDARDS: [comma-separated list of relevant Ind AS IDs exactly as listed below, e.g. "Ind AS 2, Ind AS 16" — max 3]
+
+Available standards:
+${stdList}
+
+Rules:
+- Always end with the STANDARDS: line on its own line
+- Use **bold** for headings
+- Use bullet points (- item) for lists
+- Give complete answers — do not cut short
+- Use Indian rupees (₹) for all amounts
+- If the question is about a concept not covered by Ind AS, say so clearly
+- CRITICAL: Always complete every section fully. Never stop mid-sentence or mid-section. If you start a bullet list, finish all bullets. If you start an example, complete the full numerical calculation.
+- Write your complete answer before adding the STANDARDS: line`;
+
+  try{
+    // Build full conversation history so follow-up questions have context
+    const conversationContents = [];
+    for(let i = 0; i < history.length - 1; i++){
+      const m = history[i];
+      if(m.r === 'u') conversationContents.push({role:'user',  parts:[{text: m.t}]});
+      else if(m.r === 'b' && m.rawText) conversationContents.push({role:'model', parts:[{text: m.rawText}]});
+    }
+    conversationContents.push({role:'user', parts:[{text}]});
+
+    const MODELS = [
+      'gemini-2.5-flash',
+      'gemini-2.5-flash-lite',
+      'gemini-2.5-pro'
+    ];
+
+    const sleep = ms => new Promise(res => setTimeout(res, ms));
+    const isBusy = (status, msg) =>
+      status===429 || status===503 || status===500 ||
+      ['overloaded','high demand','quota','busy','unavailable','capacity','spike','try again','temporarily'].some(k => (msg||'').toLowerCase().includes(k));
+
+    const DELAYS = [0, 4000, 8000, 15000, 25000, 40000];
+
+    // Add a streaming bot bubble to the chat
+    history.push({r:'b', html:'<div class="typing"><span class="ld"></span><span class="ld"></span><span class="ld"></span></div>', rawText:'', stds:[]});
+    renderMsgs();
+
+    const getBubble = () => {
+      const cm = document.getElementById('cm');
+      return cm ? cm.querySelector('.msg.bot:last-child .mb') : null;
+    };
+
+    let fullText = '';
+    let success = false;
+
+    for(let attempt = 0; attempt < DELAYS.length && !success; attempt++){
+      if(attempt > 0){
+        let remaining = DELAYS[attempt] / 1000;
+        const timer = setInterval(() => {
+          const b = getBubble();
+          if(b) b.innerHTML = `<span style="font-size:12px;color:var(--t2)"><i class="ti ti-clock" style="margin-right:4px"></i>Retrying in ${remaining}s (attempt ${attempt+1}/${DELAYS.length})</span>`;
+          remaining--;
+        }, 1000);
+        await sleep(DELAYS[attempt]);
+        clearInterval(timer);
+        const b = getBubble();
+        if(b) b.innerHTML = '<div class="typing"><span class="ld"></span><span class="ld"></span><span class="ld"></span></div>';
+      }
+
+      for(const model of MODELS){
+        try{
+          const payload = JSON.stringify({
+            system_instruction:{parts:[{text:sys}]},
+            contents: conversationContents,
+            generationConfig:{maxOutputTokens:32768, temperature:0.4}
+          });
+
+          const r = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`,
+            {method:'POST', headers:{'Content-Type':'application/json'}, body:payload}
+          );
+
+          if(!r.ok){
+            const errData = await r.json().catch(()=>({}));
+            const msg = errData?.error?.message || 'error '+r.status;
+            if(isBusy(r.status, msg)){ continue; }
+            throw new Error(msg);
+          }
+
+          // Stream the response chunk by chunk
+          const reader = r.body.getReader();
+          const decoder = new TextDecoder();
+          fullText = '';
+          let buffer = '';
+
+          while(true){
+            const {done, value} = await reader.read();
+            if(done) break;
+            buffer += decoder.decode(value, {stream:true});
+            const lines = buffer.split('\n');
+            buffer = lines.pop(); // keep incomplete line in buffer
+
+            for(const line of lines){
+              if(!line.startsWith('data: ')) continue;
+              const jsonStr = line.slice(6).trim();
+              if(!jsonStr || jsonStr === '[DONE]') continue;
+              try{
+                const chunk = JSON.parse(jsonStr);
+                const piece = chunk?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                if(piece){
+                  fullText += piece;
+                  // Live-render as it streams
+                  const b = getBubble();
+                  if(b) b.innerHTML = formatReply(fullText) + '<span class="stream-cursor">▍</span>';
+                  // Auto-scroll
+                  const cm = document.getElementById('cm');
+                  if(cm) cm.scrollTop = cm.scrollHeight;
+                }
+              }catch(parseErr){ /* skip malformed chunk */ }
+            }
+          }
+
+          if(fullText){ success = true; break; }
+
+        }catch(fetchErr){
+          if(isBusy(0, fetchErr.message||'')){ continue; }
+          throw fetchErr;
+        }
+      }
+    }
+
+    if(!fullText) throw new Error('Gemini is under heavy load. Tried 6 times across 3 models. Please wait 2-3 minutes and retry.');
+
+    // Final render — extract STANDARDS chips
+    const m = fullText.match(/STANDARDS:\s*([^\n]+)/i);
+    let stds = [];
+    if(m){
+      const raw = m[1].trim();
+      if(raw.toLowerCase() !== 'none')
+        stds = raw.split(',').map(s=>s.trim()).filter(s=>STANDARDS.find(x=>x.id===s));
+      fullText = fullText.replace(/STANDARDS:[^\n]*/i,'').trim();
+    }
+
+    // Update the last history entry with final content
+    history[history.length-1] = {r:'b', html:formatReply(fullText), rawText:fullText, stds};
+    renderMsgs();
+
+  }catch(e){
+    let msg=e.message||'Unknown error';
+    if(msg.includes('API_KEY_INVALID')||msg.includes('400'))
+      msg='Invalid API key. Please check your Gemini key and try again.';
+    if(msg.includes('busy')||msg.includes('overloaded')||msg.includes('high demand')||msg.includes('very busy'))
+      msg='Gemini free tier is under heavy load right now. The dashboard already retried 6 times with backoff. Please wait 1-2 minutes and try again.';
+    // Update the already-pushed bot bubble with the error
+    if(history.length && history[history.length-1].r==='b' && history[history.length-1].rawText===''){
+      history[history.length-1] = {r:'b', html:`<p style="color:#A32D2D">${esc(msg)}</p>`, rawText:'', stds:[]};
+    } else {
+      history.push({r:'b', html:`<p style="color:#A32D2D">${esc(msg)}</p>`, rawText:'', stds:[]});
+    }
+  }
+  loading=false;if(btn)btn.disabled=false;renderMsgs();
+}
+
+renderList(STANDARDS);
+renderChat();
+</script>
+</body>
+</html>
